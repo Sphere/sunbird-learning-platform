@@ -38,10 +38,10 @@ restart_delay: 30000 # in milli-seconds
 producer_max_request_size: 1572864
 
 ### Activity Aggregate job related vars
-activity_agg_consumer_parallelism: 2
-activity_agg_dedup_parallelism: 2
-activity_agg_parallelism: 2
-enrolment_complete_parallelism: 2
+activity_agg_consumer_parallelism: 1
+activity_agg_dedup_parallelism: 1
+activity_agg_parallelism: 1
+enrolment_complete_parallelism: 1
 middleware_consumption_table: "user_content_consumption"
 middleware_user_activity_agg_table: "user_activity_agg"
 activity_agg_checkpointing_interval: 300000
