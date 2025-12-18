@@ -39,8 +39,8 @@ producer_max_request_size: 1572864
 
 ### Activity Aggregate job related vars
 activity_agg_consumer_parallelism: 1
-activity_agg_dedup_parallelism: 3
-activity_agg_parallelism: 3
+activity_agg_dedup_parallelism: 4
+activity_agg_parallelism: 4
 enrolment_complete_parallelism: 1
 middleware_consumption_table: "user_content_consumption"
 middleware_user_activity_agg_table: "user_activity_agg"
