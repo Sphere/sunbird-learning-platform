@@ -169,9 +169,7 @@ spec:
       labels:
         app: flink
         component: {{ .Release.Name }}-taskmanager
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
+      
     spec:
       volumes:
       - name: flink-config-volume
