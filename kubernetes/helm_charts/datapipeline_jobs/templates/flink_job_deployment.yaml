@@ -156,6 +156,12 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-taskmanager
   namespace: {{ .Values.namespace }}
+{{- if .Values.service.annotations }}
+{{- with .Values.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
 spec:
   replicas: {{ .Values.taskmanager.replicas }}
   selector:
