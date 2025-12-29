@@ -156,23 +156,22 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-taskmanager
   namespace: {{ .Values.namespace }}
-{{- if .Values.service.annotations }}
-{{- with .Values.service.annotations }}
-  annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
-{{- end }}
+
 spec:
   replicas: {{ .Values.taskmanager.replicas }}
   selector:
     matchLabels:
       app: flink
       component: {{ .Release.Name }}-taskmanager
+      
   template:
     metadata:
       labels:
         app: flink
         component: {{ .Release.Name }}-taskmanager
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
     spec:
       volumes:
       - name: flink-config-volume
