@@ -44,12 +44,12 @@ activity_agg_parallelism: 4
 enrolment_complete_parallelism: 1
 middleware_consumption_table: "user_content_consumption"
 middleware_user_activity_agg_table: "user_activity_agg"
-activity_agg_checkpointing_interval: 60000
-activity_agg_checkpointing_pause_interval: 30000
+activity_agg_checkpointing_interval: 180000
+activity_agg_checkpointing_pause_interval: 60000
 activity_agg_batch_interval: 60
 activity_agg_batch_read_size: 1
 activity_agg_batch_write_size: 10
-activity_agg_window_shards: 50
+activity_agg_window_shards: 30
 activity_agg_dedup_index: 13
 activity_agg_dedup_expiry: 604800
 activity_module_aggs_enabled: true
