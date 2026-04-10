@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.common.Slug;
 import org.sunbird.telemetry.logger.TelemetryManager;
@@ -24,7 +25,7 @@ import org.sunbird.telemetry.logger.TelemetryManager;
 public class HttpDownloadUtility {
 
 	private static final int BUFFER_SIZE = 4096;
-
+	
 	/**
 	 * Downloads a file from a URL
 	 * 
@@ -34,6 +35,26 @@ public class HttpDownloadUtility {
 	 *            path of the directory to save the file
 	 */
 	public static File downloadFile(String fileURL, String saveDir) {
+		try {
+			System.out.println("http utility called.........");
+			return download(fileURL, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			TelemetryManager.error("Error! While Downloading File:"+ e.getMessage(), e);
+		}
+		TelemetryManager.warn("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'. File url: "+ fileURL);
+		return null;
+	}
+
+	/**
+	 * Downloads a file from a URL
+	 * 
+	 * @param fileURL
+	 *            HTTP URL of the file to be downloaded
+	 * @param saveDir
+	 *            path of the directory to save the file
+	 */
+	public static File downloadFileOld(String fileURL, String saveDir) {
 		HttpURLConnection httpConn = null;
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
@@ -158,5 +179,18 @@ public class HttpDownloadUtility {
 		TelemetryManager.log("Data read from url: " + sb.toString());
 		return sb.toString();
 	}
+	
+	public static File download(String artifactUrl, boolean extractFile) throws Exception {
+		if(StringUtils.isNotBlank(artifactUrl)){
+			String localPath = "tmp/" + artifactUrl.trim() + File.separator;
+			String[] fileUrl = artifactUrl.split("/");
+			String filename = fileUrl[fileUrl.length - 1];
 
+			File file = new File(localPath + filename);
+			FileUtils.copyURLToFile(new URL(artifactUrl), file);
+			return file;
+		}
+		return null;
+
+	}
 }

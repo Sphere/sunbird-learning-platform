@@ -432,6 +432,7 @@ enrolment-reconciliation:
     jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    env.java.opts: -Dlog4j2.formatMsgNoLookups=true
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -867,7 +868,7 @@ certificate-email-service:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    
+
 content-publish:
   content-publish: |+
     include file("/data/flink/conf/base-config.conf")
@@ -966,7 +967,7 @@ content-publish:
       }
 
       nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
-      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"] 
+      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"]
 
     }
     cloud_storage {
@@ -1064,7 +1065,7 @@ content-publish:
     aws_storage_key="{{ aws_storage_key }}"
     aws_storage_secret="{{ aws_storage_secret }}"
     aws_storage_container="{{ aws_storage_container }}"
-    
+
     Course="Program"
     Course="Mandatory Course Goal"
 
