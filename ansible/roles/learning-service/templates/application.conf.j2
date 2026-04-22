@@ -196,11 +196,8 @@ job.request.event.mimetype=["application/pdf",
                               "image/x-quicktime",
                               "video/avi",
                               "video/mpeg",
-                              "video/quicktime",
                               "video/3gpp",
-                              "video/mp4",
                               "video/ogg",
-                              "video/webm",
                               "video/msvideo",
                               "video/x-msvideo",
                               "video/x-qtc",
@@ -253,11 +250,9 @@ cloud_storage_type="{{ cloud_store }}"
 azure_storage_key="{{sunbird_public_storage_account_name}}"
 azure_storage_secret="{{sunbird_public_storage_account_key}}"
 azure_storage_container="{{ azure_public_container }}"
-
 aws_storage_key = "{{ aws_storage_key }}"
 aws_storage_secret: "{{ aws_storage_secret }}"
 aws_storage_container: "{{ aws_storage_container }}"
-
 
 installation.id="{{ instance_name }}"
 
@@ -309,5 +304,6 @@ content.tagging.property="subject,medium"
 
 # Search Service Config
 kp.search_service.base_url="{{ kp_search_service_base_url }}"
+
 collection.only_published_children=true
 indexHtmlValidation.env=false

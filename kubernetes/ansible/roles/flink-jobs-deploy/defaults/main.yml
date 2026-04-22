@@ -39,17 +39,17 @@ producer_max_request_size: 1572864
 
 ### Activity Aggregate job related vars
 activity_agg_consumer_parallelism: 1
-activity_agg_dedup_parallelism: 1
-activity_agg_parallelism: 1
+activity_agg_dedup_parallelism: 4
+activity_agg_parallelism: 4
 enrolment_complete_parallelism: 1
 middleware_consumption_table: "user_content_consumption"
 middleware_user_activity_agg_table: "user_activity_agg"
-activity_agg_checkpointing_interval: 300000
-activity_agg_checkpointing_pause_interval: 90000
+activity_agg_checkpointing_interval: 180000
+activity_agg_checkpointing_pause_interval: 60000
 activity_agg_batch_interval: 60
 activity_agg_batch_read_size: 1
 activity_agg_batch_write_size: 10
-activity_agg_window_shards: 1000
+activity_agg_window_shards: 30
 activity_agg_dedup_index: 13
 activity_agg_dedup_expiry: 604800
 activity_module_aggs_enabled: true
@@ -118,12 +118,6 @@ middleware_assessment_aggregator_table: "assessment_aggregator"
 ###  Collection Generator Job related Vars
 collection_certificate_generator_consumer_parallelism: 1
 collection_certificate_generator_parallelism: 1
-collection_certificate_generator_enable_suppress_exception: "{{ enable_suppress_exception | lower }}"
-collection_certificate_generator_enable_rc_certificate: "{{ enable_rc_certificate | lower }}"
-collection_certificate_pre_processor_enable_suppress_exception: "{{ enable_suppress_exception | lower }}"
-collection_certificate_generator_rc_badcharlist: "{{ rc_bad_char_list | default('\"\\\\x00,\\\\\\\\aaa,\\\\aaa,Ø,Ý,\\\\\"') }}"
-registry_sunbird_keyspace: "sunbird"
-cert_registry_table: "cert_registry"
 
 
 ### to be removed
@@ -140,7 +134,7 @@ flink_job_names:
     cpu_requests: 0.3
   activity-aggregate-updater:
     job_class_name: 'org.sunbird.job.aggregate.task.ActivityAggregateUpdaterStreamTask'
-    replica: 1
+    replica: 4
     jobmanager_memory: 1024m
     taskmanager_memory: 1024m
     taskslots: 1
@@ -277,8 +271,7 @@ composite_search_indexer_parallelism: 1
 dialcode_external_indexer_parallelism: 1
 dialcode_metric_indexer_parallelism: 1
 schema_definition_cache_expiry_in_sec: 14400
-search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON","branchingLogic"]
-search_indexer_restrict_object_types: ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
+search_indexer_ignored_fields: ["responseDeclaration", "body", "options", "lastStatusChangedOn", "SYS_INTERNAL_LAST_UPDATED_ON", "sYS_INTERNAL_LAST_UPDATED_ON"]
 
 ### Asset Enrichment Related Vars
 asset_enrichment_consumer_parallelism: 1
@@ -328,3 +321,9 @@ qrcode_image_generator_consumer_parallelism: 1
 qrcode_image_generator_parallelism: 1
 
 source_base_url: "{{proto}}://{{domain_name}}/api"
+
+
+registry_sunbird_keyspace: "sunbird"
+cert_registry_table: "cert_registry"
+collection_certificate_generator_enable_suppress_exception: false
+collection_certificate_generator_enable_rc_certificate: true
