@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.sunbird.common.Platform;
 import org.sunbird.common.dto.Response;
 import org.sunbird.common.exception.ResponseCode;
 import org.sunbird.content.common.ContentOperations;
@@ -42,7 +43,9 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
 		TelemetryManager.log("Calling Upload Content For Node ID: " + node.getIdentifier() + " Uploaded File :" + uploadFile);
-		if (hasGivenFile(uploadFile, "index.html")) {
+		Boolean indexHtmlValidation = (Platform.config.hasPath("indexHtmlValidation.env"))? Platform.config.getBoolean("indexHtmlValidation.env") : false;
+		Boolean flag = indexHtmlValidation ? hasGivenFile(uploadFile, "index.html") : true;
+		if (flag) {
 			return uploadContentArtifact(contentId, node, uploadFile, false);
 		} else {
 			return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Zip file doesn't have required files.", ResponseCode.CLIENT_ERROR);

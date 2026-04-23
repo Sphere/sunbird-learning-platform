@@ -120,6 +120,7 @@ base_config: |
     }
     schema {
       basePath = "{{ kp_schema_base_path }}"
+      base_path= "{{ kp_schema_base_path }}"
       supportedVersion = {
         itemset = "2.0"
       }
@@ -133,7 +134,7 @@ activity-aggregate-updater:
       output.audit.topic = {{ env_name }}.telemetry.raw
       output.failed.topic = {{ env_name }}.activity.agg.failed
       output.certissue.topic = {{ env_name }}.issue.certificate.request
-      groupId = {{ env_name }}-activity-aggregate-group
+      groupId = {{ env_name }}-activity-aggregate-group2
     }
     task {
       window.shards = {{ activity_agg_window_shards }}
@@ -291,16 +292,20 @@ questionset-publish:
     aws_storage_key = "{{ aws_storage_key }}"
     aws_storage_secret: "{{ aws_storage_secret }}"
     aws_storage_container: "{{ aws_storage_container }}"
+
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['questionset-publish'].taskslots }}
-    parallelism.default: 1
     env.java.opts: -Dlog4j2.formatMsgNoLookups=true
+    parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+    metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+    metrics.reporter.prom.port: 9250-9260
+
 
 video-stream-generator:
   video-stream-generator: |+
@@ -376,7 +381,7 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
@@ -432,6 +437,7 @@ enrolment-reconciliation:
     jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    env.java.opts: -Dlog4j2.formatMsgNoLookups=true
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -553,74 +559,6 @@ auto-creator-v2:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-
-content-auto-creator:
-  content-auto-creator: |+
-    include file("/data/flink/conf/base-config.conf")
-    kafka {
-      input.topic = "{{ env_name }}.auto.creation.job.request"
-      groupId = "{{ env_name }}-content-auto-creator-group"
-      failed.topic = "{{ env_name }}.auto.creation.job.request.failed"
-    }
-
-    task {
-      consumer.parallelism = {{ content_auto_creator_consumer_parallelism }}
-      parallelism = {{ content_auto_creator_parallelism }}
-      window.time = 60
-      checkpointing.timeout = 4200000
-    }
-
-    redis {
-      database {
-        relationCache.id = 10
-        collectionCache.id = 5
-      }
-    }
-
-    service {
-      content_service.basePath = "{{ kp_content_service_base_url }}"
-      search.basePath = "{{ kp_search_service_base_url }}"
-      lms.basePath = "{{ lms_service_base_url }}"
-      learning_service.basePath = "{{ kp_learning_service_base_url }}"
-    }
-
-    cloud_storage_type="{{ cloud_store }}"
-    azure_storage_key="{{ sunbird_public_storage_account_name }}"
-    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
-    azure_storage_container="{{ azure_public_container }}"
-
-    content_auto_creator {
-        actions=auto-create
-        allowed_object_types=["Content"]
-        allowed_content_stages=["create","upload","review","publish"]
-        content_mandatory_fields=["name","code","mimeType","primaryCategory","artifactUrl","lastPublishedBy"]
-        content_props_to_removed=["identifier","downloadUrl","variants","createdOn","collections","children","lastUpdatedOn","SYS_INTERNAL_LAST_UPDATED_ON","versionKey","s3Key","status","pkgVersion","toc_url","mimeTypesCount","contentTypesCount","leafNodesCount","childNodes","prevState","lastPublishedOn","flagReasons","compatibilityLevel","size","publishChecklist","publishComment","lastPublishedBy","rejectReasons","rejectComment","badgeAssertions","leafNodes","sYS_INTERNAL_LAST_UPDATED_ON","previewUrl","channel","objectType","visibility","version","pragma","prevStatus","streamingUrl","idealScreenSize","contentDisposition","lastStatusChangedOn","idealScreenDensity","lastSubmittedOn","publishError","flaggedBy","flags","lastFlaggedOn","publisher","lastUpdatedBy","lastSubmittedBy","uploadError","lockKey","publish_type","reviewError","totalCompressedSize","origin","originData","importError","questions"]
-        bulk_upload_mime_types=["video/mp4"]
-        artifact_upload_max_size=52428800
-        content_create_props=["name","code","mimeType","contentType","framework","processId","primaryCategory"]
-        artifact_upload_allowed_source=[]
-        g_service_acct_cred="{{ auto_creator_g_service_acct_cred }}"
-        gdrive.application_name=drive-download
-        initial_backoff_delay=120000
-        maximum_backoff_delay=1200000
-        increment_backoff_delay=2
-        api_call_delay=1
-        maxIteration=1
-    }
-
-    search_exists_fields=["originData"]
-    search_fields=["identifier","mimeType","pkgVersion","channel","status","origin","originData","artifactUrl"]
-
-
-  flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['content-auto-creator'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['content-auto-creator'].taskslots }}
-    parallelism.default: 1
-    jobmanager.execution.failover-strategy: region
-    taskmanager.memory.network.fraction: 0.1
-
-
 audit-event-generator:
   audit-event-generator: |+
     include file("/data/flink/conf/base-config.conf")
@@ -711,6 +649,7 @@ collection-cert-pre-processor:
       keyspace = "sunbird"
       table = "user_assessment_summary"
     }
+
     cert_domain_url = "{{ cert_domain_url }}"
     user_read_api = "/private/user/v1/read"
     content_read_api = "/content/v3/read"
@@ -719,6 +658,7 @@ collection-cert-pre-processor:
       content.basePath = "{{ content_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
     }
+
     enable.suppress.exception = {{ collection_certificate_pre_processor_enable_suppress_exception | lower }}
     redis-meta {
     {% if metadata2_redis_host is defined %}
@@ -765,6 +705,8 @@ collection-certificate-generator:
     cert_cloud_storage_type = "{{ cert_cloud_storage_type }}"
     cert_aws_storage_secret = "{{ cert_aws_storage_secret }}"
     cert_aws_storage_key = "{{ cert_aws_storage_key }}"
+
+
     service {
       certreg.basePath = "{{ cert_reg_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
@@ -772,10 +714,10 @@ collection-certificate-generator:
       rc.basePath = "{{ cert_rc_base_url }}"
       rc.entity = "{{ cert_rc_entity }}"
     }
+
     enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
     enable.rc.certificate = false
     task.rc.badcharlist = {{ collection_certificate_generator_rc_badcharlist }}
-
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
@@ -867,7 +809,6 @@ certificate-email-service:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    
 content-publish:
   content-publish: |+
     include file("/data/flink/conf/base-config.conf")
@@ -898,61 +839,38 @@ content-publish:
       table = "content_data"
       tmp_file_location = "/tmp"
       objectType = ["Content", "ContentImage","Collection","CollectionImage"]
-      mimeType = ["application/pdf",
-                                   "application/vnd.ekstep.ecml-archive",
-                                   "application/vnd.ekstep.html-archive",
-                                   "application/vnd.android.package-archive",
-                                   "application/vnd.ekstep.content-archive",
-                                   "application/epub",
-                                   "application/msword",
-                                   "application/vnd.ekstep.h5p-archive",
-                                   "video/webm",
-                                   "video/mp4",
-                                   "application/vnd.ekstep.content-collection",
-                                   "video/quicktime",
-                                   "application/octet-stream",
-                                   "application/json",
-                                   "application/javascript",
-                                   "application/xml",
-                                   "text/plain",
-                                   "text/html",
-                                   "text/javascript",
-                                   "text/xml",
-                                   "text/css",
-                                   "image/jpeg",
-                                   "image/jpg",
-                                   "image/png",
-                                   "image/tiff",
-                                   "image/bmp",
-                                   "image/gif",
-                                   "image/svg+xml",
-                                   "image/x-quicktime",
-                                   "video/avi",
-                                   "video/mpeg",
-                                   "video/quicktime",
-                                   "video/3gpp",
-                                   "video/mp4",
-                                   "video/ogg",
-                                   "video/webm",
-                                   "video/msvideo",
-                                   "video/x-msvideo",
-                                   "video/x-qtc",
-                                   "video/x-mpeg",
-                                   "audio/mp3",
-                                   "audio/mp4",
-                                   "audio/mpeg",
-                                   "audio/ogg",
-                                   "audio/webm",
-                                   "audio/x-wav",
-                                   "audio/wav",
-                                   "audio/mpeg3",
-                                   "audio/x-mpeg-3",
-                                   "audio/vorbis",
-                                   "application/x-font-ttf",
-                                   "application/vnd.ekstep.plugin-archive",
-                                   "video/x-youtube",
-                                   "video/youtube",
-                                   "text/x-url"]
+      mimeType = ["application/pdf", "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm", "application/vnd.ekstep.html-archive","application/vnd.ekstep.ecml-archive","application/vnd.ekstep.content-collection"
+                                              "application/vnd.ekstep.ecml-archive",
+                                                "application/vnd.ekstep.html-archive",
+                                                "application/vnd.android.package-archive",
+                                                "application/vnd.ekstep.content-archive",
+                                                "application/octet-stream",
+                                                 "application/json",
+                                                 "application/javascript",
+                                                 "application/xml",
+                                                 "text/plain",
+                                                 "text/html",
+                                                 "application/survey",
+                                                 "text/javascript",
+                                                 "text/xml",
+                                                 "text/css",
+                                                 "image/jpeg", "image/jpg", "image/png", "image/tiff", "image/bmp", "image/gif", "image/svg+xml",
+                                                 "image/x-quicktime",
+                                                 "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm",
+                                                 "video/msvideo",
+                                                 "video/x-msvideo",
+                                                 "video/x-qtc",
+                                                 "video/x-mpeg",
+                                                 "audio/mp3", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/webm", "audio/x-wav", "audio/wav",
+                                                 "audio/mpeg3",
+                                                 "audio/x-mpeg-3",
+                                                 "audio/vorbis",
+                                                 "application/x-font-ttf",
+                                                 "application/pdf", "application/epub", "application/msword",
+                                                 "application/vnd.ekstep.h5p-archive",
+                                                 "application/vnd.ekstep.plugin-archive",
+                                                 "video/x-youtube", "video/youtube",
+                                                 "text/x-url"]
       asset_download_duration = "60 seconds"
       stream {
         enabled = {{ content_stream_enabled | lower }}
@@ -964,10 +882,8 @@ content-publish:
         spine = ["appIcon"]
         full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
       }
-
-      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
-      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"] 
-
+      nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
+      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"]
     }
     cloud_storage {
         folder {
@@ -980,7 +896,6 @@ content-publish:
       keyspace = "{{ hierarchy_keyspace_name }}"
       table = "content_hierarchy"
     }
-
     contentTypeToPrimaryCategory {
       ClassroomTeachingVideo: "Explanation Content"
       ConceptMap: "Learning Resource"
@@ -1064,10 +979,9 @@ content-publish:
     aws_storage_key="{{ aws_storage_key }}"
     aws_storage_secret="{{ aws_storage_secret }}"
     aws_storage_container="{{ aws_storage_container }}"
-    
+
     Course="Program"
     Course="Mandatory Course Goal"
-
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
@@ -1079,50 +993,6 @@ content-publish:
     taskmanager.memory.flink.size: {{ flink_job_names['content-publish'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['content-publish'].taskslots }}
     env.java.opts: -Dlog4j2.formatMsgNoLookups=true
-    parallelism.default: 1
-    jobmanager.execution.failover-strategy: region
-    taskmanager.memory.network.fraction: 0.1
-
-qrcode-image-generator:
-  qrcode-image-generator: |+
-    include file("/data/flink/conf/base-config.conf")
-
-    kafka {
-      input.topic = "{{ env_name }}.qrimage.request"
-      groupId = "{{ env_name }}-qrcode-image-generator-group"
-    }
-
-    task {
-      consumer.parallelism = {{ qrcode_image_generator_consumer_parallelism }}
-      parallelism = {{ qrcode_image_generator_parallelism }}
-      window.time = 60
-    }
-
-    lp.tmp.file.location="/tmp"
-
-    qr.image {
-        imageFormat="png"
-        bottomMargin=0
-        margin=1
-    }
-
-    cloud_storage_type="{{ cloud_store }}"
-    azure_storage_key="{{ sunbird_public_storage_account_name }}"
-    azure_storage_secret="{{ sunbird_public_storage_account_key }}"
-    azure_storage_container="{{ azure_public_container }}"
-
-    lms-cassandra {
-      keyspace = "dialcodes"
-      table {
-        image = "dialcode_images"
-        batch = "dialcode_batch"
-      }
-    }
-
-  flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['qrcode-image-generator'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['qrcode-image-generator'].taskslots }}
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
