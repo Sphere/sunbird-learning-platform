@@ -120,6 +120,7 @@ base_config: |
     }
     schema {
       basePath = "{{ kp_schema_base_path }}"
+      base_path= "{{ kp_schema_base_path }}"
       supportedVersion = {
         itemset = "2.0"
       }
@@ -133,7 +134,7 @@ activity-aggregate-updater:
       output.audit.topic = {{ env_name }}.telemetry.raw
       output.failed.topic = {{ env_name }}.activity.agg.failed
       output.certissue.topic = {{ env_name }}.issue.certificate.request
-      groupId = {{ env_name }}-activity-aggregate-group
+      groupId = {{ env_name }}-activity-aggregate-group2
     }
     task {
       window.shards = {{ activity_agg_window_shards }}
@@ -291,16 +292,20 @@ questionset-publish:
     aws_storage_key = "{{ aws_storage_key }}"
     aws_storage_secret: "{{ aws_storage_secret }}"
     aws_storage_container: "{{ aws_storage_container }}"
+
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['questionset-publish'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['questionset-publish'].taskslots }}
-    parallelism.default: 1
     env.java.opts: -Dlog4j2.formatMsgNoLookups=true
+    parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
+    metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+    metrics.reporter.prom.port: 9250-9260
+
 
 video-stream-generator:
   video-stream-generator: |+
@@ -376,7 +381,7 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
@@ -432,6 +437,7 @@ enrolment-reconciliation:
     jobmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].jobmanager_memory }}
     taskmanager.memory.flink.size: {{ flink_job_names['enrolment-reconciliation'].taskmanager_memory }}
     taskmanager.numberOfTaskSlots: {{ flink_job_names['enrolment-reconciliation'].taskslots }}
+    env.java.opts: -Dlog4j2.formatMsgNoLookups=true
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
@@ -711,6 +717,7 @@ collection-cert-pre-processor:
       keyspace = "sunbird"
       table = "user_assessment_summary"
     }
+
     cert_domain_url = "{{ cert_domain_url }}"
     user_read_api = "/private/user/v1/read"
     content_read_api = "/content/v3/read"
@@ -765,6 +772,8 @@ collection-certificate-generator:
     cert_cloud_storage_type = "{{ cert_cloud_storage_type }}"
     cert_aws_storage_secret = "{{ cert_aws_storage_secret }}"
     cert_aws_storage_key = "{{ cert_aws_storage_key }}"
+
+
     service {
       certreg.basePath = "{{ cert_reg_service_base_url }}"
       learner.basePath = "{{ learner_service_base_url }}"
@@ -867,7 +876,7 @@ certificate-email-service:
     parallelism.default: 1
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
-    
+
 content-publish:
   content-publish: |+
     include file("/data/flink/conf/base-config.conf")
@@ -964,10 +973,8 @@ content-publish:
         spine = ["appIcon"]
         full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
       }
-
-      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
-      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"] 
-
+      nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
+      restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"]
     }
     cloud_storage {
         folder {
@@ -980,7 +987,6 @@ content-publish:
       keyspace = "{{ hierarchy_keyspace_name }}"
       table = "content_hierarchy"
     }
-
     contentTypeToPrimaryCategory {
       ClassroomTeachingVideo: "Explanation Content"
       ConceptMap: "Learning Resource"
@@ -1064,10 +1070,9 @@ content-publish:
     aws_storage_key="{{ aws_storage_key }}"
     aws_storage_secret="{{ aws_storage_secret }}"
     aws_storage_container="{{ aws_storage_container }}"
-    
+
     Course="Program"
     Course="Mandatory Course Goal"
-
 
     master.category.validation.enabled ="{{ master_category_validation_enabled }}"
     service {
