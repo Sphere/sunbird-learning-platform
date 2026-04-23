@@ -659,6 +659,7 @@ collection-cert-pre-processor:
       learner.basePath = "{{ learner_service_base_url }}"
     }
 
+    enable.suppress.exception = {{ collection_certificate_pre_processor_enable_suppress_exception | lower }}
     redis-meta {
     {% if metadata2_redis_host is defined %}
       host = {{ metadata2_redis_host }}
@@ -716,7 +717,7 @@ collection-certificate-generator:
 
     enable.suppress.exception = {{ collection_certificate_generator_enable_suppress_exception | lower }}
     enable.rc.certificate = false
-
+    task.rc.badcharlist = {{ collection_certificate_generator_rc_badcharlist }}
 
   flink-conf: |+
     jobmanager.memory.flink.size: {{ flink_job_names['collection-certificate-generator'].jobmanager_memory }}
