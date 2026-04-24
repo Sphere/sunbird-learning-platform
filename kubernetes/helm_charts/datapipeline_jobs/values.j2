@@ -381,7 +381,7 @@ search-indexer:
     dialcode.index.name = "dialcode"
     dailcodemetrics.index.name = "dialcodemetrics"
     restrict.metadata.objectTypes = []
-    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3"]
+    nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility", "taxonomyPaths_v2", "competencies_v3"]
     schema.definition_cache.expiry = {{ schema_definition_cache_expiry_in_sec }}
     restrict.objectTypes = ["EventSet", "EventSetImage", "Event", "EventImage", "Questionnaire", "Misconception", "FrameworkType", "Concept", "Misconception", "Language", "Reference", "Dimension", "Method", "Library", "Domain", "Api"]
     ignored.fields={{ search_indexer_ignored_fields | to_json }}
@@ -973,7 +973,7 @@ content-publish:
         spine = ["appIcon"]
         full = ["appIcon", "grayScaleAppIcon", "artifactUrl", "itemSetPreviewUrl", "media"]
       }
-      nested.fields = ["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "discussionForum", "provider", "osMetadata", "actions", "taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
+      nested.fields=["badgeAssertions", "targets", "badgeAssociations", "plugins", "me_totalTimeSpent", "me_totalPlaySessionCount", "me_totalTimeSpentInSec", "batches", "trackable", "credentials", "provider", "osMetadata", "actions", "transcripts", "accessibility","taxonomyPaths_v2", "competencies_v3", "test_competencies_v2","competencies_v2"]
       restrict.objectTypes = ["EventSet", "Questionnaire", "Misconception", "FrameworkType", "EventSetImage", "EventImage"]
     }
     cloud_storage {
@@ -995,41 +995,6 @@ content-publish:
       eTextBook: "eTextbook"
       Event: "Event"
       EventSet: "Event Set"
-      ExperientialResource: "Learning Resource"
-      ExplanationResource: "Explanation Content"
-      ExplanationVideo: "Explanation Content"
-      FocusSpot: "Teacher Resource"
-      LearningOutcomeDefinition: "Teacher Resource"
-      MarkingSchemeRubric: "Teacher Resource"
-      PedagogyFlow: "Teacher Resource"
-      PracticeQuestionSet: "Practice Question Set"
-      PracticeResource: "Practice Question Set"
-      SelfAssess: "Course Assessment"
-      TeachingMethod: "Teacher Resource"
-      TextBook: "Digital Textbook"
-      Collection: "Content Playlist"
-      ExplanationReadingMaterial: "Learning Resource"
-      LearningActivity: "Learning Resource"
-      LessonPlan: "Content Playlist"
-      LessonPlanResource: "Teacher Resource"
-      PreviousBoardExamPapers: "Learning Resource"
-      TVLesson: "Explanation Content"
-      OnboardingResource: "Learning Resource"
-      ReadingMaterial: "Learning Resource"
-      Template: "Template"
-      Asset: "Asset"
-      Plugin: "Plugin"
-      LessonPlanUnit: "Lesson Plan Unit"
-      CourseUnit: "Course Unit"
-      TextBookUnit: "Textbook Unit"
-      Asset: "Certificate Template"
-    }
-    contentTypeToPrimaryCategory {
-      ClassroomTeachingVideo: "Explanation Content"
-      ConceptMap: "Learning Resource"
-      Course: "Course"
-      CuriosityQuestionSet: "Practice Question Set"
-      eTextBook: "eTextbook"
       ExperientialResource: "Learning Resource"
       ExplanationResource: "Explanation Content"
       ExplanationVideo: "Explanation Content"
