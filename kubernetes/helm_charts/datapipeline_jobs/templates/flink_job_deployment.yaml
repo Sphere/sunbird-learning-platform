@@ -86,13 +86,12 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
     spec:
-	  {{- if .Values.tolerations.enabled }}
+      {{- if .Values.tolerations.enabled }}
       tolerations:
         - key: "dedicated"
           operator: "Equal"
           value: "flink"
           effect: "NoSchedule"
-
       nodeSelector:
         role: flink       
       {{- end }} 
@@ -183,14 +182,13 @@ spec:
     spec:
 	  {{- if .Values.tolerations.enabled }}
       tolerations:
-      - key: "dedicated"
-        operator: "Equal"
-        value: "flink"
-        effect: "NoSchedule"
+        - key: "dedicated"
+          operator: "Equal"
+          value: "flink"
+          effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: "{{ .Values.tolerations.nodepoolname }}"        
-      {{- end }} 			  
-	  
+        role: flink       
+      {{- end }} 	
       volumes:
       - name: flink-config-volume
         configMap:
