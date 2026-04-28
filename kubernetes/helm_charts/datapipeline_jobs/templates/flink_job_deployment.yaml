@@ -86,6 +86,15 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: "{{ .Values.jobmanager.prom_port }}"
     spec:
+      {{- if .Values.tolerations.enabled }}
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "flink"
+          effect: "NoSchedule"
+      nodeSelector:
+        role: flink       
+      {{- end }} 
       volumes:
       - name: flink-config-volume
         configMap:
@@ -156,18 +165,30 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-taskmanager
   namespace: {{ .Values.namespace }}
+
 spec:
   replicas: {{ .Values.taskmanager.replicas }}
   selector:
     matchLabels:
       app: flink
       component: {{ .Release.Name }}-taskmanager
+      
   template:
     metadata:
       labels:
         app: flink
         component: {{ .Release.Name }}-taskmanager
+      
     spec:
+	  {{- if .Values.tolerations.enabled }}
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "flink"
+          effect: "NoSchedule"
+      nodeSelector:
+        role: flink       
+      {{- end }} 	
       volumes:
       - name: flink-config-volume
         configMap:

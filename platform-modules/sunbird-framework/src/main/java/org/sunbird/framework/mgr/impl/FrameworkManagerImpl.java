@@ -201,6 +201,7 @@ public class FrameworkManagerImpl extends BaseFrameworkManager implements IFrame
 		}
 		if (StringUtils.isNotBlank(frameworkId) && validateObject(frameworkId)) {
 			generateFrameworkHierarchy(frameworkId);
+			FrameworkCache.delete(frameworkId);
 			Response response = OK();
 			response.put(FrameworkEnum.publishStatus.name(),
 					"Publish Operation for Framework Id '" + frameworkId + "' Started Successfully!");
