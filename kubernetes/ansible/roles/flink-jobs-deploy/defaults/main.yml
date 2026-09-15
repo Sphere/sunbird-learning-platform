@@ -278,9 +278,9 @@ auto_creator_v2_parallelism: 1
 ### MVC Indexer Related Vars
 mvc_indexer_consumer_parallelism: 1
 mvc_indexer_parallelism: 1
-mvc_indexer_ml_vector_host: "{{ mlworkbench | default('') }}"
+#mvc_indexer_ml_vector_host: "{{ mlworkbench | default('') }}"
 mvc_indexer_ml_vector_port: 1729
-mvc_indexer_ml_keyword_host: "{{ mlworkbench | default('') }}"
+#mvc_indexer_ml_keyword_host: "{{ mlworkbench | default('') }}"
 mvc_indexer_ml_keyword_port: 3579
 mvc_indexer_nested_fields: "trackable,credentials"
 
