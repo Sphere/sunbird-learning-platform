@@ -92,7 +92,8 @@ kp_redis_host: "{{ groups['redisall'][0] }}"
 neo4j_route_path: "bolt://{{ groups['learning-neo4j-node1'][0] }}:7687"
 
 ### Global vars
-flink_namespace: "flink-kp-{{ instance }}"
+#flink_namespace: "flink-kp-{{ instance }}"
+flink_namespace: "sunbird"
 middleware_hierarchy_keyspace: "{{ instance }}_hierarchy_store"
 kp_print_service_base_url: "http://{{private_ingressgateway_ip}}/print"
 cert_reg_service_base_url: "http://{{private_ingressgateway_ip}}/certreg"
