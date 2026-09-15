@@ -714,43 +714,6 @@ collection-certificate-generator:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 
-mvc-indexer:
-  mvc-indexer: |+
-    include "base-config.conf"
-
-    kafka {
-      input.topic = "{{ env_name }}.mvc.processor.job.request"
-      groupId = "{{ env_name }}-mvc-indexer-group"
-      output.failed.topic = "{{ env_name }}.mvc.events.failed"
-    }
-
-    task {
-      consumer.parallelism = {{ mvc_indexer_consumer_parallelism }}
-      parallelism = {{ mvc_indexer_parallelism }}
-    }
-
-    lms-cassandra.keyspace = "{{ content_keyspace_name }}"
-    lms-cassandra.table = "content_data"
-
-    nested.fields="{{ mvc_indexer_nested_fields }}"
-
-    service.content.basePath = "{{ kp_content_service_base_url }}"
-    es.indexAlias = "mvc-content"
-
-    ml.vector.host="{{ mvc_indexer_ml_vector_host }}"
-    ml.vector.port="{{ mvc_indexer_ml_vector_port }}"
-    ml.keyword.host="{{ mvc_indexer_ml_keyword_host }}"
-    ml.keyword.port="{{ mvc_indexer_ml_keyword_port }}"
-
-
-  flink-conf: |+
-    jobmanager.memory.flink.size: {{ flink_job_names['mvc-indexer'].jobmanager_memory }}
-    taskmanager.memory.flink.size: {{ flink_job_names['mvc-indexer'].taskmanager_memory }}
-    taskmanager.numberOfTaskSlots: {{ flink_job_names['mvc-indexer'].taskslots }}
-    env.java.opts: -Dlog4j2.formatMsgNoLookups=true
-    parallelism.default: 1
-    jobmanager.execution.failover-strategy: region
-    taskmanager.memory.network.fraction: 0.1
 certificate-email-service:
   certificate-email-service: |+
      include file("/data/flink/conf/base-config.conf")
