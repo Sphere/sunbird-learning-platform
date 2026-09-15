@@ -15,13 +15,13 @@
   shell: find "{{ helm_env_file_location }}" -iname "*.env" -exec /bin/bash -c "ls {}; kubectl create configmap {{ release_name }}-test-config --from-env-file={} -n flink-kp-dev --dry-run -o=yaml | kubectl apply -f - " \;
 
 - name: remove the job.batch
-  shell: kubectl delete job.batch {{ item }}-jobmanager -n {{ flink_namespace }}
+  shell: kubectl delete job.batch {{ item }}-jobmanager -n sunbird
   with_items:
     - "{{ job_names_to_deploy.split(',')|list }}"
   ignore_errors: yes
 
 - name: helm upgrade
-  shell: helm upgrade --install {{ item }} {{ chart_path }} --set job_classname={{ flink_job_names['%s'|format(item)].job_class_name }} --set taskmanager.replicas={{ flink_job_names['%s'|format(item)].replica }} --set taskmanager.cpu_requests={{ flink_job_names['%s'|format(item)].cpu_requests }} -n {{ flink_namespace }}
+  shell: helm upgrade --install {{ item }} {{ chart_path }} --set job_classname={{ flink_job_names['%s'|format(item)].job_class_name }} --set taskmanager.replicas={{ flink_job_names['%s'|format(item)].replica }} --set taskmanager.cpu_requests={{ flink_job_names['%s'|format(item)].cpu_requests }} -n sunbird
   with_items:
     - "{{ job_names_to_deploy.split(',')|list }}"
 
