@@ -991,4 +991,4 @@ content-publish:
     jobmanager.execution.failover-strategy: region
     taskmanager.memory.network.fraction: 0.1
 tolerations:
-  enabled: {{ kp_flink_tolerations_enabled | default('true') }}
+  enabled: {{ kp_flink_tolerations_enabled | default('false') }}
